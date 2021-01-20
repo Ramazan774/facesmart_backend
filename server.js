@@ -35,6 +35,7 @@ const database = {
     },
   ],
 };
+
 app.get("/", (req, res) => {
   res.send(database.users);
 });
@@ -53,6 +54,7 @@ app.post("/signin", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, name, password } = req.body;
+  const hash = bcrypt.hashSync(password);
   database.users.push({
     id: "125",
     name: name,
