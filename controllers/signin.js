@@ -1,26 +1,40 @@
-const handleSignin = (req, res, pg, bcrypt) => {
+const handleSignin = async (req, res, pg, bcrypt) => {
     const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json('incorrect form submission');
+
+    if (!email || !password) {
+        return res.status(400).json('incorrect form submission');
+    }
+
+    try {
+        const data = await pg('login')
+            .select('email', 'hash')
+            .where('email', '=', email);
+
+        if(!data.length) {
+            return res.status(400).json('Wrong credentials.');
         }
-    pg.select('email', 'hash').from('login')
-        .where('email', '=', email)
-        .then(data => {
-        const isValid = bcrypt.compareSync(password, data[0].hash);
+
+        const isValid = await bcrypt.compare(password, data[0].hash);
+
         if(isValid) {
-            return pg.select('*').from('users')
-            .where('email', '=', email)
-            .then(user => {
+            const user = await pg('users')
+                .select('*')
+                .where('email', '=', email);
+
+            if(user.length) {
                 res.json(user[0]);
-            })
-            .catch(err => res.status(400).json('Unable to get the user'))
+            } else {
+                res.status(400).json('Unable to get the user');
+            }
         } else {
-            res.status(400).json('Wrong credentials')
+            res.status(400).json('Wrong credentials');
         }
-        })
-        .catch(err => res.status(400).json('Wrong credentials'))
-}
+    } catch(err) {
+        console.error(err)
+        res.status(400).json('Error signing in');
+    }
+};
 
 module.exports = {
     handleSignin: handleSignin
-}
+};
