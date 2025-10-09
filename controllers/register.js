@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const handleRegister = async (req, res, db, bcrypt) => {
   const { email, name, password } = req.body;
 
@@ -27,13 +29,19 @@ const handleRegister = async (req, res, db, bcrypt) => {
       return newUser[0];
     });
 
-    res.json(user);
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.json({
+      user: user,
+      token: token
+    });
   } catch (err) {
     console.error(err);
     res.status(400).json('Unable to register');
   }
 }
 
-module.exports = {
-  handleRegister: handleRegister
-};
+module.exports = { handleRegister };

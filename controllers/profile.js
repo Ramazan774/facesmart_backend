@@ -11,6 +11,4 @@ const handleProfileGet = (req, res, pg) => {
     .catch(err => res.status(400).json('Error getting user'))
   }
 
-  module.exports = {
-    handleProfileGet
-  }
+  module.exports = { handleProfileGet };

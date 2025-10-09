@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const handleSignin = async (req, res, pg, bcrypt) => {
     const { email, password } = req.body;
 
@@ -22,7 +24,16 @@ const handleSignin = async (req, res, pg, bcrypt) => {
                 .where('email', '=', email);
 
             if(user.length) {
-                res.json(user[0]);
+                const token = jwt.sign(
+                    { id: user[0].id, email: user[0].email },
+                    process.env.JWT_SECRET,
+                    { expiresIn: '7d'}
+                );
+
+                res.json({
+                    user: user[0],
+                    token: token
+                });
             } else {
                 res.status(400).json('Unable to get the user');
             }
@@ -35,6 +46,4 @@ const handleSignin = async (req, res, pg, bcrypt) => {
     }
 };
 
-module.exports = {
-    handleSignin: handleSignin
-};
+module.exports = { handleSignin };

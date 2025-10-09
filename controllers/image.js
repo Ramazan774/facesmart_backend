@@ -8,6 +8,4 @@ const handleImage = (req, res, pg) => {
     }).catch(err => res.status(400).json('Unable to get entries'))
   }
 
-  module.exports = {
-    handleImage
-  }
+  module.exports = { handleImage };

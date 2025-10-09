@@ -1,5 +1,6 @@
+const authorize = require('./middleware/authorize');
+
 const express = require("express");
-// const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const cors = require('cors');
 
@@ -17,8 +18,7 @@ const pg = require('knex')({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
-    // port: 3001
-  },
+  }
 });
 
 pg.raw('SELECT 1')
@@ -38,8 +38,8 @@ app.use(cors())
 app.get('/', (req, res)=> { res.send('Server is running') })
 app.post("/signin", async (req, res) => await signin.handleSignin(req, res, pg, bcrypt));
 app.post("/register", async (req, res) => await register.handleRegister(req, res, pg, bcrypt));
-app.get("/profile/:id", (req, res) => { profile.handleProfileGet(req, res, pg)});
-app.put("/image", (req, res) => { image.handleImage(req, res, pg)});
+app.get("/profile/:id", authorize, (req, res) => { profile.handleProfileGet(req, res, pg)});
+app.put("/image", authorize, (req, res) => { image.handleImage(req, res, pg)});
 
 app.listen(3001, () => {
   console.log("app is running on port 3001");
