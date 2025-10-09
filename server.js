@@ -10,14 +10,21 @@ const profile = require("./controllers/profile");
 const image = require("./controllers/image");
 
 require('dotenv').config({ path: '.env.local'});
+
 const pg = require('knex')({
   client: 'pg',
-  connection: {
+  connection: process.env.DATABASE_URL 
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+  }
+  : {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    ssl: { rejectUnauthorized: false }
   }
 });
 
